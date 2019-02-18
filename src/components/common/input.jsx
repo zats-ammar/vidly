@@ -13,6 +13,7 @@ const Input = ({ name, label, error, ...rest }) => {
         name={name}
         id={name}
         className="form-control"
+        autoComplete="off"
       />
       {/* conditional rendering of elements. this element is rendered only if error is truthy, otherwise ignore */}
       {error && <div className="alert alert-danger">{error}</div>}

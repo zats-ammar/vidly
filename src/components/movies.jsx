@@ -1,11 +1,12 @@
 import React, { Component } from "react";
-import { getMovies } from "../services/fakeMovieService";
+import { getMovies, deleteMovie } from "../services/fakeMovieService";
 import Pagination from "./common/pagination"; //defeault export no need curly braces
 import { paginate } from "../utils/paginate"; // named export need curly braces
 import ListGroup from "./common/listGroup";
 import { getGenres } from "./../services/fakeGenreService"; // current folder ./ , one folder up ../
 import MoviesTable from "./moviesTable";
 import _ from "lodash";
+import { Link } from "react-router-dom";
 
 class Movies extends Component {
   //initializing properties
@@ -28,6 +29,7 @@ class Movies extends Component {
     this.setState({
       movies: this.state.movies.filter(movie => movie._id !== movieId)
     });
+    deleteMovie(movieId);
   };
 
   handleLike = movie => {
@@ -92,6 +94,13 @@ class Movies extends Component {
           />
         </div>
         <div className="col">
+          <Link
+            to="/movies/new"
+            className="btn btn-primary"
+            style={{ marginBottom: "10px" }}
+          >
+            New Movie
+          </Link>
           <p>Showing {totalCount} movies in the database</p>
           <MoviesTable
             onLike={this.handleLike}

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Input from "./input";
 import Joi from "joi-browser";
+import DropDown from "./dropdown";
 
 class Form extends Component {
   state = {
@@ -37,7 +38,8 @@ class Form extends Component {
   validate = () => {
     //---best way using Joi----
     //abortearly does exit the validation process as soon as the first validation fails
-    const options = { abortEarly: false };
+    //allowUnknown let ignore the validation for unknown properties of passed data
+    const options = { abortEarly: false, allowUnknown: true };
     const result = Joi.validate(this.state.data, this.schema, options); //pass whole state object & whole schema object to validate the whole form
     console.log(result);
     if (!result.error) return null; //no errors
@@ -100,6 +102,20 @@ class Form extends Component {
       <button disabled={this.validate()} className="btn btn-primary">
         {label}
       </button>
+    );
+  };
+
+  renderDropDown = (name, label, options, selectedValue) => {
+    const { errors } = this.state;
+    return (
+      <DropDown
+        name={name}
+        label={label}
+        options={options}
+        error={errors[name]}
+        onChange={this.handleDropdownChange}
+        selectedValue={selectedValue}
+      />
     );
   };
 }
