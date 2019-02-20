@@ -38,8 +38,7 @@ class Form extends Component {
   validate = () => {
     //---best way using Joi----
     //abortearly does exit the validation process as soon as the first validation fails
-    //allowUnknown let ignore the validation for unknown properties of passed data
-    const options = { abortEarly: false, allowUnknown: true };
+    const options = { abortEarly: false };
     const result = Joi.validate(this.state.data, this.schema, options); //pass whole state object & whole schema object to validate the whole form
     console.log(result);
     if (!result.error) return null; //no errors
@@ -105,16 +104,16 @@ class Form extends Component {
     );
   };
 
-  renderDropDown = (name, label, options, selectedValue) => {
-    const { errors } = this.state;
+  renderDropDown = (name, label, options) => {
+    const { errors, data } = this.state;
     return (
       <DropDown
         name={name}
+        value={data[name]}
         label={label}
         options={options}
         error={errors[name]}
-        onChange={this.handleDropdownChange}
-        selectedValue={selectedValue}
+        onChange={this.handleChange}
       />
     );
   };

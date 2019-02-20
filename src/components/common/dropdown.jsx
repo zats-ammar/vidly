@@ -1,6 +1,6 @@
 import React from "react";
 
-const DropDown = ({ name, label, options, error, onChange, selectedValue }) => {
+const DropDown = ({ name, label, options, error, onChange, value }) => {
   return (
     <div className="form-group">
       <label htmlFor={name}>{label}</label>
@@ -9,8 +9,9 @@ const DropDown = ({ name, label, options, error, onChange, selectedValue }) => {
         id={name}
         onChange={onChange}
         className="form-control"
-        value={selectedValue} //value of select element = value of option element
+        value={value} //value of select element = value of option element
       >
+        <option value="" />
         {options.map(option => (
           <option key={option._id} value={option._id}>
             {option.name}

@@ -7,11 +7,11 @@ import { saveMovie, getMovie } from "../services/fakeMovieService";
 class MovieForm extends Form {
   state = {
     data: {
+      //if we have properties in data object that we do NOT validate with joi, we need to pass option 'allowUnknown: true' in Joi.validate
       title: "",
-      genre: { name: "", _id: "" },
+      genreId: "",
       numberInStock: 0,
-      dailyRentalRate: 0,
-      _id: ""
+      dailyRentalRate: 0
     },
     errors: {},
     genres: [],
@@ -19,19 +19,13 @@ class MovieForm extends Form {
   };
 
   schema = {
+    _id: Joi.string(), //id is not set required because there may be create movie too
     title: Joi.string()
       .required()
       .label("Title"),
-    genre: Joi.object()
-      .keys({
-        name: Joi.string()
-          .required()
-          .label("Genre"),
-        _id: Joi.string()
-          .required()
-          .label("Genre")
-      })
-      .required(),
+    genreId: Joi.string()
+      .required()
+      .label("Genre"),
     numberInStock: Joi.number()
       .required()
       .min(1)
@@ -45,19 +39,29 @@ class MovieForm extends Form {
   };
 
   componentDidMount() {
-    const genres = [{ _id: "", name: "" }, ...getGenres()];
+    const genres = getGenres();
     this.setState({ genres });
+
     const { id: movieId } = this.props.match.params;
     if (movieId) {
       const movie = getMovie(movieId);
       if (!movie) {
         this.props.history.replace("/not-found"); //use replace instead of push to use browser back button to navigate
-        return;
+        return; //to stop executing furthur
       }
-      const selectedGenre = movie.genre._id;
-      this.setState({ data: movie, selectedGenre });
+      this.setState({ data: this.setToViewModel(movie) });
     }
   }
+
+  setToViewModel = movie => {
+    return {
+      _id: movie._id,
+      title: movie.title,
+      genreId: movie.genre._id,
+      numberInStock: movie.numberInStock,
+      dailyRentalRate: movie.dailyRentalRate
+    };
+  };
 
   doSubmit = () => {
     let movieData = this.state.data;
@@ -65,32 +69,8 @@ class MovieForm extends Form {
     this.props.history.push("/movies");
   };
 
-  handleDropdownChange = event => {
-    const selectedGenreId = event.target.value;
-    const errors = { ...this.state.errors };
-    if (!selectedGenreId) {
-      const errorMessage = "Please select a Genre";
-      errors["genre"] = errorMessage;
-    } else {
-      delete errors["genre"];
-    }
-    const selectedGenreObj = this.state.genres.find(
-      genre => genre._id === selectedGenreId
-    );
-    this.setState(prevState => {
-      return {
-        data: {
-          ...prevState.data,
-          genre: selectedGenreObj
-        },
-        errors: errors,
-        selectedGenre: selectedGenreObj._id
-      };
-    });
-  };
-
   render() {
-    const { genres, selectedGenre } = this.state;
+    const { genres } = this.state;
     const { match } = this.props;
 
     let heading = "Movie Form";
@@ -102,7 +82,7 @@ class MovieForm extends Form {
         <h1>{heading}</h1>
         <form onSubmit={this.handleFormSubmit}>
           {this.renderInput("title", "Title")}
-          {this.renderDropDown("genre", "Genre", genres, selectedGenre)}
+          {this.renderDropDown("genreId", "Genre", genres)}
           {this.renderInput("numberInStock", "Number in Stock", "number")}
           {this.renderInput("dailyRentalRate", "Rate", "number")}
           {this.renderButton("Save")}
