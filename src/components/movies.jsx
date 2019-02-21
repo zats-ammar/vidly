@@ -7,6 +7,7 @@ import { getGenres } from "./../services/fakeGenreService"; // current folder ./
 import MoviesTable from "./moviesTable";
 import _ from "lodash";
 import { Link } from "react-router-dom";
+import SearchBar from "./common/searchBar";
 
 class Movies extends Component {
   //initializing properties
@@ -15,14 +16,15 @@ class Movies extends Component {
     genres: [],
     itemsPerPage: 4,
     currentPage: 1,
-    sortColumn: { path: "title", order: "asc" }
+    sortColumn: { path: "title", order: "asc" },
+    searchKey: ""
   };
 
   componentDidMount() {
     //insert 'All genres' to top of the genre array.
     //false , 0 , "" , null , undefined , and NaN are falsy in javascript
     const genres = [{ name: "All genres", _id: "" }, ...getGenres()];
-    this.setState({ movies: getMovies(), genres });
+    this.setState({ movies: getMovies(), genres, selectedGenre: genres[0] }); //selectedGenre is declared and initialized in this method. not in state
   }
 
   handleDelete = movieId => {
@@ -45,11 +47,16 @@ class Movies extends Component {
   };
 
   handleGenreSelect = genre => {
-    this.setState({ selectedGenre: genre, currentPage: 1 }); //selectedGenre is declared and initialized in this method. not in state
+    this.setState({ selectedGenre: genre, currentPage: 1, searchKey: "" });
   };
 
   handleSort = sortColumn => {
     this.setState({ sortColumn });
+  };
+
+  handleSearch = event => {
+    const searchKey = event.target.value;
+    this.setState({ searchKey, selectedGenre: {} });
   };
 
   getPageData = () => {
@@ -58,12 +65,15 @@ class Movies extends Component {
       currentPage,
       movies: allMovies,
       sortColumn,
-      selectedGenre
+      selectedGenre,
+      searchKey
     } = this.state;
     //first filtering all items
     const filtered =
       selectedGenre && selectedGenre._id //if selectedGenre & id of selectedGenre both truthy, then apply the filter
         ? allMovies.filter(m => m.genre._id === selectedGenre._id)
+        : searchKey !== ""
+        ? allMovies.filter(m => m.title.toLowerCase().includes(searchKey))
         : allMovies;
 
     //second sorting filtered items
@@ -77,7 +87,14 @@ class Movies extends Component {
 
   render() {
     const { length: count } = this.state.movies;
-    const { itemsPerPage, currentPage, genres, sortColumn } = this.state;
+    const {
+      itemsPerPage,
+      currentPage,
+      genres,
+      sortColumn,
+      searchKey,
+      selectedGenre
+    } = this.state;
     if (count === 0) return <p>There are no movies in database!</p>;
 
     const { totalCount, data: movies } = this.getPageData();
@@ -88,7 +105,7 @@ class Movies extends Component {
           <ListGroup
             items={genres}
             onItemSelect={this.handleGenreSelect}
-            selectedItem={this.state.selectedGenre}
+            selectedItem={selectedGenre}
             textProperty="name" //passing key/value property names particular to this list, to ListGroup Component to dynamically use these props
             valueProperty="_id" //passing key/value property names particular to this list, to ListGroup Component to dynamically use these props
           />
@@ -102,6 +119,7 @@ class Movies extends Component {
             New Movie
           </Link>
           <p>Showing {totalCount} movies in the database</p>
+          <SearchBar searchKey={searchKey} onChange={this.handleSearch} />
           <MoviesTable
             onLike={this.handleLike}
             onDelete={this.handleDelete}
