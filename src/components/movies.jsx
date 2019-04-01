@@ -54,9 +54,8 @@ class Movies extends Component {
     this.setState({ sortColumn });
   };
 
-  handleSearch = event => {
-    const searchKey = event.target.value;
-    this.setState({ searchKey, selectedGenre: {} });
+  handleSearch = query => {
+    this.setState({ searchKey: query, selectedGenre: {}, currentPage: 1 });
   };
 
   getPageData = () => {
