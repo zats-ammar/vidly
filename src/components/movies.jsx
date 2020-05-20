@@ -17,7 +17,8 @@ class Movies extends Component {
     itemsPerPage: 4,
     currentPage: 1,
     sortColumn: { path: "title", order: "asc" },
-    searchKey: ""
+    searchKey: "",
+    selectedGenre: null
   };
 
   componentDidMount() {
@@ -47,6 +48,11 @@ class Movies extends Component {
   };
 
   handleGenreSelect = genre => {
+    //searchKey is set to empty string instead of null because,
+    //SearchBar is a controlled component 
+    //when working with controlled elements/components you cannot use null, undefined
+    //otherwise react thinks that you're working with an uncontrolled component
+    //so the moment user type something in the input field, react thinks that you're trying to convert an uncontrolled component into a controlled component
     this.setState({ selectedGenre: genre, currentPage: 1, searchKey: "" });
   };
 
@@ -55,7 +61,7 @@ class Movies extends Component {
   };
 
   handleSearch = query => {
-    this.setState({ searchKey: query, selectedGenre: {}, currentPage: 1 });
+    this.setState({ searchKey: query, selectedGenre: null, currentPage: 1 });
   };
 
   getPageData = () => {
@@ -72,7 +78,7 @@ class Movies extends Component {
       selectedGenre && selectedGenre._id //if selectedGenre & id of selectedGenre both truthy, then apply the filter
         ? allMovies.filter(m => m.genre._id === selectedGenre._id)
         : searchKey !== ""
-        ? allMovies.filter(m => m.title.toLowerCase().includes(searchKey))
+        ? allMovies.filter(m => m.title.toLowerCase().startsWith(searchKey.toLowerCase()))
         : allMovies;
 
     //second sorting filtered items
@@ -113,7 +119,7 @@ class Movies extends Component {
           <Link
             to="/movies/new"
             className="btn btn-primary"
-            style={{ marginBottom: "10px" }}
+            style={{ marginBottom: 20 }}
           >
             New Movie
           </Link>

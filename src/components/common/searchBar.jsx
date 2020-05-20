@@ -6,7 +6,7 @@ const SearchBar = ({ onChange, searchKey }) => {
       <input
         onChange={e => onChange(e.currentTarget.value)}
         placeholder="Search..."
-        className="form-control"
+        className="form-control my-3"
         value={searchKey}
         type="text"
       />

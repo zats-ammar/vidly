@@ -10,12 +10,11 @@ class MovieForm extends Form {
       //if we have properties in data object that we do NOT validate with joi, we need to pass option 'allowUnknown: true' in Joi.validate
       title: "",
       genreId: "",
-      numberInStock: 0,
-      dailyRentalRate: 0
+      numberInStock: "",
+      dailyRentalRate: ""
     },
     errors: {},
-    genres: [],
-    selectedGenre: ""
+    genres: []
   };
 
   schema = {
@@ -28,12 +27,12 @@ class MovieForm extends Form {
       .label("Genre"),
     numberInStock: Joi.number()
       .required()
-      .min(1)
+      .min(0)
       .max(100)
       .label("No In Stock"),
     dailyRentalRate: Joi.number()
       .required()
-      .min(1)
+      .min(0)
       .max(10)
       .label("Rate")
   };
@@ -43,17 +42,20 @@ class MovieForm extends Form {
     this.setState({ genres });
 
     const { id: movieId } = this.props.match.params;
+    if(movieId === "new") return; //return here because we don't need to populate the form with an existing movie obj
+
+    //populate the form with an existing movie obj
     if (movieId) {
       const movie = getMovie(movieId);
-      if (!movie) {
-        this.props.history.replace("/not-found"); //use replace instead of push to use browser back button to navigate
-        return; //to stop executing furthur
-      }
-      this.setState({ data: this.setToViewModel(movie) });
+      if (!movie)
+        //returning to stop executing furthur 
+        return this.props.history.replace("/not-found"); //use replace instead of push to use browser back button to navigate
+      
+      this.setState({ data: this.mapToViewModel(movie) });
     }
   }
 
-  setToViewModel = movie => {
+  mapToViewModel = movie => {
     return {
       _id: movie._id,
       title: movie.title,
@@ -64,8 +66,7 @@ class MovieForm extends Form {
   };
 
   doSubmit = () => {
-    let movieData = this.state.data;
-    saveMovie(movieData);
+    saveMovie(this.state.data);
     this.props.history.push("/movies");
   };
 
