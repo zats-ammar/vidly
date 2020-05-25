@@ -1,7 +1,9 @@
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 //error handling lib
 import Joi from "joi-browser";
 import Form from "./common/form";
+import auth from "../services/authService";
 
 //inherits base form
 class LoginForm extends Form {
@@ -9,7 +11,7 @@ class LoginForm extends Form {
     //initialize value for controlled elements
     //name it as data for reusable purpose
     data: { username: "", password: "" }, //undefined/null cannot be used as a value for a controlled element
-    errors: {} //all the errors in this login form
+    errors: {}, //all the errors in this login form
     //using an object fro errors instead of array to easily manipulate properties of
     //e.g errors['username']
     //e.g errors.find(e => e.name === 'username)
@@ -23,7 +25,7 @@ class LoginForm extends Form {
       .label("Username"),
     password: Joi.string()
       .required()
-      .label("Password")
+      .label("Password"),
   };
 
   //defining a React ref to a DOM element
@@ -37,12 +39,28 @@ class LoginForm extends Form {
     //this.username.current.focus();
   }
 
-  doSubmit = () => {
-    //call the server
-    console.log("Submitting");
+  doSubmit = async () => {
+    try {
+      const { data } = this.state;
+      await auth.login(data.username, data.password);
+
+      const { state } = this.props.location;
+      //app.js componentDidMount() is invoked once during the lifecycle of our application
+      //because our app component is mounted once, and whenever we change it's state, it's re rendered
+      //so to get the latest token and set the user data after login, do a full reload which will invoke our app.js componentDidMount()
+      window.location = state ? state.from.pathname : "/";
+    } catch (ex) {
+      if (ex.response && ex.response.status === 400) {
+        const errors = { ...this.state.errors };
+        errors.username = ex.response.data;
+        this.setState({ errors });
+      }
+    }
   };
 
   render() {
+    if (auth.getCurrentUser()) return <Redirect to="/" />;
+
     return (
       <div>
         <h1>Login</h1>
