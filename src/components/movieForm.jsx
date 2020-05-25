@@ -1,8 +1,8 @@
 import React from "react";
 import Form from "./common/form";
 import Joi from "joi-browser";
-import { getGenres } from "../services/fakeGenreService";
-import { saveMovie, getMovie } from "../services/fakeMovieService";
+import { getGenres } from "../services/genreService";
+import { saveMovie, getMovie } from "../services/movieService";
 
 class MovieForm extends Form {
   state = {
@@ -37,22 +37,28 @@ class MovieForm extends Form {
       .label("Rate")
   };
 
-  componentDidMount() {
-    const genres = getGenres();
+  async populateGenres(){
+    const { data: genres } = await getGenres();
     this.setState({ genres });
+  };
 
-    const { id: movieId } = this.props.match.params;
-    if(movieId === "new") return; //return here because we don't need to populate the form with an existing movie obj
-
-    //populate the form with an existing movie obj
-    if (movieId) {
-      const movie = getMovie(movieId);
-      if (!movie)
-        //returning to stop executing furthur 
-        return this.props.history.replace("/not-found"); //use replace instead of push to use browser back button to navigate
+  async populateMovie(){
+    try{ //populate the form with an existing movie obj
+      const { id: movieId } = this.props.match.params;
+      if(movieId === "new") return; //return here because we don't need to populate the form with an existing movie obj
       
+      const { data: movie } = await getMovie(movieId);
       this.setState({ data: this.mapToViewModel(movie) });
     }
+    catch (ex) {
+      if (ex.response && ex.response.status === 404)
+        this.props.history.replace("/not-found"); //use replace instead of push to use browser back button to navigate
+    }
+  };
+
+  async componentDidMount() {
+    await this.populateGenres();
+    await this.populateMovie();
   }
 
   mapToViewModel = movie => {
@@ -65,8 +71,8 @@ class MovieForm extends Form {
     };
   };
 
-  doSubmit = () => {
-    saveMovie(this.state.data);
+  doSubmit = async () => {
+    await saveMovie(this.state.data);
     this.props.history.push("/movies");
   };
 

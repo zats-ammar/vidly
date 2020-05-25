@@ -6,10 +6,10 @@ import DropDown from "./dropdown";
 class Form extends Component {
   state = {
     data: {},
-    errors: {}
+    errors: {},
   };
 
-  handleFormSubmit = e => {
+  handleFormSubmit = (e) => {
     //preventing default behaviour of a form submit to avoid events such as full reload,download the bundle,etc
     //you can test this in network tab
     e.preventDefault();
@@ -40,7 +40,7 @@ class Form extends Component {
     //abortearly does exit the validation process as soon as the first validation fails
     const options = { abortEarly: false };
     const result = Joi.validate(this.state.data, this.schema, options); //pass whole state object & whole schema object to validate the whole form
-    console.log(result);
+    //console.log(result);
     if (!result.error) return null; //no errors
 
     //if errors, map them to an object
@@ -93,7 +93,7 @@ class Form extends Component {
     );
   };
 
-  renderButton = label => {
+  renderButton = (label) => {
     return (
       // this.validate() returns either null or an object in our code.
       // if it passed a null which is considered as falsy therefore false will be applied
