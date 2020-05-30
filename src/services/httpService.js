@@ -9,6 +9,8 @@ import logger from "./logService";
 //--instead httpservice will setJwt() which will be invoked from authservice
 //axios.defaults.headers.common['x-auth-token'] = auth.getJwt();
 
+axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+
 axios.interceptors.response.use(null, (error) => {
   //---Expected errors (client errors) ----
   //e.g 400(Bad request), 404(Not Found), incorrect form data

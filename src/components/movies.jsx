@@ -19,7 +19,7 @@ class Movies extends Component {
     currentPage: 1,
     sortColumn: { path: "title", order: "asc" },
     searchKey: "",
-    selectedGenre: null
+    selectedGenre: null,
   };
 
   async componentDidMount() {
@@ -32,8 +32,8 @@ class Movies extends Component {
     this.setState({ movies, genres, selectedGenre: genres[0] }); //selectedGenre is declared and initialized in this method. not in state
   }
 
-  handleDelete = async movieId => {
-    //optimistic update 
+  handleDelete = async (movieId) => {
+    //optimistic update
     //hold a reference to the original data
     //then we update the ui first, assuming the delete call to the server will be success most of the time
     //if failed we need to revert the ui back to original data
@@ -43,13 +43,13 @@ class Movies extends Component {
     //in this case there is a slight delay of updating ui since async call
 
     const originalMovies = this.state.movies; //hold a reference to the original data
-    const movies = originalMovies.filter(movie => movie._id !== movieId);
+    const movies = originalMovies.filter((movie) => movie._id !== movieId);
     this.setState({ movies }); //then we update the ui first
 
-    try{
+    try {
       await deleteMovie(movieId); //send the http request
-    }
-    catch (ex) { //catch http request failures
+    } catch (ex) {
+      //catch http request failures
       if (ex.response && ex.response.status === 404)
         toast.error("This movie has already been deleted!"); //Expected error displaying
 
@@ -57,7 +57,7 @@ class Movies extends Component {
     }
   };
 
-  handleLike = movie => {
+  handleLike = (movie) => {
     const movies = [...this.state.movies];
     const index = movies.indexOf(movie);
     movies[index] = { ...movies[index] }; //check this why we doing. we are copying the same object here
@@ -65,24 +65,24 @@ class Movies extends Component {
     this.setState({ movies });
   };
 
-  handlePageChange = page => {
+  handlePageChange = (page) => {
     this.setState({ currentPage: page });
   };
 
-  handleGenreSelect = genre => {
+  handleGenreSelect = (genre) => {
     //searchKey is set to empty string instead of null because,
-    //SearchBar is a controlled component 
+    //SearchBar is a controlled component
     //when working with controlled elements/components you cannot use null, undefined
     //otherwise react thinks that you're working with an uncontrolled component
     //so the moment user type something in the input field, react thinks that you're trying to convert an uncontrolled component into a controlled component
     this.setState({ selectedGenre: genre, currentPage: 1, searchKey: "" });
   };
 
-  handleSort = sortColumn => {
+  handleSort = (sortColumn) => {
     this.setState({ sortColumn });
   };
 
-  handleSearch = query => {
+  handleSearch = (query) => {
     this.setState({ searchKey: query, selectedGenre: null, currentPage: 1 });
   };
 
@@ -93,14 +93,16 @@ class Movies extends Component {
       movies: allMovies,
       sortColumn,
       selectedGenre,
-      searchKey
+      searchKey,
     } = this.state;
     //first filtering all items
     const filtered =
       selectedGenre && selectedGenre._id //if selectedGenre & id of selectedGenre both truthy, then apply the filter
-        ? allMovies.filter(m => m.genre._id === selectedGenre._id)
+        ? allMovies.filter((m) => m.genre._id === selectedGenre._id)
         : searchKey !== ""
-        ? allMovies.filter(m => m.title.toLowerCase().startsWith(searchKey.toLowerCase()))
+        ? allMovies.filter((m) =>
+            m.title.toLowerCase().startsWith(searchKey.toLowerCase())
+          )
         : allMovies;
 
     //second sorting filtered items
@@ -120,10 +122,9 @@ class Movies extends Component {
       genres,
       sortColumn,
       searchKey,
-      selectedGenre
+      selectedGenre,
     } = this.state;
     const { user } = this.props;
-    if (count === 0) return <p>There are no movies in database!</p>;
 
     const { totalCount, data: movies } = this.getPageData();
 
@@ -140,13 +141,15 @@ class Movies extends Component {
         </div>
         <div className="col">
           {/* syntax 'user &&' -> if user is truthy, we have this Link component. user permissions */}
-          {user && <Link
-            to="/movies/new"
-            className="btn btn-primary"
-            style={{ marginBottom: 20 }}
-          >
-            New Movie
-          </Link>}
+          {user && (
+            <Link
+              to="/movies/new"
+              className="btn btn-primary"
+              style={{ marginBottom: 20 }}
+            >
+              New Movie
+            </Link>
+          )}
           <p>Showing {totalCount} movies in the database</p>
           <SearchBar searchKey={searchKey} onChange={this.handleSearch} />
           <MoviesTable
