@@ -15,7 +15,7 @@ import { BrowserRouter } from "react-router-dom";
 //npm run build > production env variables will be used during build time
 //npm test > test env variables will be used during build time
 //open up devtools>Sources>Domain>Static>js>Bundle.js and search for SUPERMAN to test this
-console.log("SUPERMAN", process.env.REACT_APP_API_URL);
+console.log("env-specific-api-endpoint", process.env.REACT_APP_API_URL);
 
 ReactDOM.render(
   <BrowserRouter>
