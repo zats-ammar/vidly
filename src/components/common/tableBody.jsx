@@ -5,7 +5,7 @@ class TableBody extends Component {
   renderCell = (item, column) => {
     if (column.content) return column.content(item);
 
-    return _.get(item, column.path); // we can use lodash get method when there are nested properties in a given object(i.e. column.genre.name)
+    return _.get(item, column.path);
   };
 
   createKey = (item, column) => {
@@ -16,9 +16,9 @@ class TableBody extends Component {
     const { data, columns } = this.props;
     return (
       <tbody>
-        {data.map(item => (
+        {data.map((item) => (
           <tr key={item._id}>
-            {columns.map(column => (
+            {columns.map((column) => (
               <td key={this.createKey(item, column)}>
                 {this.renderCell(item, column)}
               </td>

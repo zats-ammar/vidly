@@ -7,18 +7,17 @@ import { saveMovie, getMovie } from "../services/movieService";
 class MovieForm extends Form {
   state = {
     data: {
-      //if we have properties in data object that we do NOT validate with joi, we need to pass option 'allowUnknown: true' in Joi.validate
       title: "",
       genreId: "",
       numberInStock: "",
-      dailyRentalRate: ""
+      dailyRentalRate: "",
     },
     errors: {},
-    genres: []
+    genres: [],
   };
 
   schema = {
-    _id: Joi.string(), //id is not set required because there may be create movie too
+    _id: Joi.string(),
     title: Joi.string()
       .required()
       .label("Title"),
@@ -34,40 +33,39 @@ class MovieForm extends Form {
       .required()
       .min(0)
       .max(10)
-      .label("Rate")
+      .label("Rate"),
   };
 
-  async populateGenres(){
+  async populateGenres() {
     const { data: genres } = await getGenres();
     this.setState({ genres });
-  };
+  }
 
-  async populateMovie(){
-    try{ //populate the form with an existing movie obj
+  async populateMovie() {
+    try {
       const { id: movieId } = this.props.match.params;
-      if(movieId === "new") return; //return here because we don't need to populate the form with an existing movie obj
-      
+      if (movieId === "new") return;
+
       const { data: movie } = await getMovie(movieId);
       this.setState({ data: this.mapToViewModel(movie) });
-    }
-    catch (ex) {
+    } catch (ex) {
       if (ex.response && ex.response.status === 404)
-        this.props.history.replace("/not-found"); //use replace instead of push to use browser back button to navigate
+        this.props.history.replace("/not-found");
     }
-  };
+  }
 
   async componentDidMount() {
     await this.populateGenres();
     await this.populateMovie();
   }
 
-  mapToViewModel = movie => {
+  mapToViewModel = (movie) => {
     return {
       _id: movie._id,
       title: movie.title,
       genreId: movie.genre._id,
       numberInStock: movie.numberInStock,
-      dailyRentalRate: movie.dailyRentalRate
+      dailyRentalRate: movie.dailyRentalRate,
     };
   };
 

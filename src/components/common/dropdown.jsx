@@ -9,10 +9,10 @@ const DropDown = ({ name, label, options, error, onChange, value }) => {
         id={name}
         onChange={onChange}
         className="form-control"
-        value={value} //value of select element = value of option element
+        value={value}
       >
         <option value="" />
-        {options.map(option => (
+        {options.map((option) => (
           <option key={option._id} value={option._id}>
             {option.name}
           </option>
